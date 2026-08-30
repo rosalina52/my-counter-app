@@ -42,7 +42,6 @@
             background-color: #ff9500;
         }
 
-        /* クイズ枠（全幅表示） */
         .quiz-navi-box {
             background: #222;
             color: #fff;
@@ -97,7 +96,6 @@
             font-weight: bold;
         }
 
-        /* カウンター配置（横並び2列） */
         .grid-container {
             display: flex;
             flex-direction: row;
@@ -312,6 +310,7 @@
                 
                 const maxCount = parseInt(card.getAttribute('data-max')) || 100;
                 let count = 0;
+                let lastClickTime = 0; // チャタリング・連続反応防止用タイマー
 
                 const updateDisplay = () => {
                     display.textContent = `${count} / ${maxCount}`;
@@ -320,11 +319,21 @@
 
                 const plus = (e) => {
                     if (e) e.preventDefault();
+                    // 0.2秒以内の連続動作を無効化
+                    const now = Date.now();
+                    if (now - lastClickTime < 200) return;
+                    lastClickTime = now;
+
                     if (count < maxCount) { count++; updateDisplay(); }
                 };
 
                 const minus = (e) => {
                     if (e) e.preventDefault();
+                    // 0.2秒以内の連続動作を無効化
+                    const now = Date.now();
+                    if (now - lastClickTime < 200) return;
+                    lastClickTime = now;
+
                     if (count > 0) { count--; updateDisplay(); }
                 };
 
@@ -332,15 +341,10 @@
 
                 itemStates.push({ plus, minus, reset });
 
-                const addTouchHandler = (element, action) => {
-                    if (!element) return;
-                    element.addEventListener('pointerdown', action);
-                    element.addEventListener('click', action);
-                };
-
-                addTouchHandler(btnPlus, plus);
-                addTouchHandler(btnMinus, minus);
-                addTouchHandler(img, plus);
+                // 重複イベントを防ぐため click のみに統一
+                if (btnPlus) btnPlus.addEventListener('click', plus);
+                if (btnMinus) btnMinus.addEventListener('click', minus);
+                if (img) img.addEventListener('click', plus);
 
                 updateDisplay();
             });
