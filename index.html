@@ -2,170 +2,182 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- スマホで画面が崩れないようビューポートを設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>アイテム・カウンター ＆ クイズガイド</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #55ff00;
             margin: 0;
-            padding: 20px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            
-            /* 画面のどこをドラッグしてもウィンドウを動かせる設定 */
-            -webkit-app-region: drag;
             user-select: none;
+            -webkit-user-select: none;
         }
 
-        /* ウィンドウ上部のボタン配置エリア */
+        /* 上部メニュー */
         .top-menu {
             width: 100%;
-            max-width: 1000px;
+            max-width: 820px;
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
-        /* ボタンの共通ベーススタイル */
         .menu-btn {
             color: white;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: bold;
             border: 2px solid #fff;
-            padding: 10px 24px;
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-            transition: background 0.2s, transform 0.1s;
-            
-            /* ボタンはドラッグ対象から除外（クリックを有効にするため） */
-            -webkit-app-region: no-drag;
         }
 
-        .menu-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* 強制終了ボタン（赤） */
-        .kill-button { background-color: #ff3b30; }
-        .kill-button:hover { background-color: #e03126; }
-
-        /* リセットボタン（オレンジ） */
         .reset-button { background-color: #ff9500; }
-        .reset-button:hover { background-color: #e68600; }
 
-        /* クイズ詳細ナビゲーションボード（横幅を820pxに固定） */
+        /* クイズ詳細ナビゲーションボード（スマホ幅に自動調整） */
         .quiz-navi-box {
             background: #222;
             color: #fff;
-            padding: 15px 24px;
+            padding: 12px 16px;
             border-radius: 14px;
-            width: 820px;
-            margin-bottom: 20px;
+            width: 100%;
+            max-width: 820px;
+            margin-bottom: 12px;
             border: 2px solid #fff;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            box-sizing: border-box;
             text-align: left;
         }
         
-        /* 「次の問題: Q1」の部分 */
         .quiz-title {
-            font-size: 1.6rem;
+            font-size: 1rem;
             color: #aaa;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-weight: bold;
-            letter-spacing: 1px;
         }
 
-        /* 💥 クイズの問題文（フォント2rem ＆ 3行分の高さで完全固定） */
+        /* クイズの問題文（スマホでは文字サイズを可変に） */
         .quiz-question {
-            font-size: 2.1rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #fff;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             line-height: 1.3;
             white-space: pre-line;
-            
-            /* 💥 高さを「フォントサイズ2rem × 行間1.3 × 3行分」に変更して完全固定 */
-            height: calc(2rem * 1.3 * 2); 
+            min-height: calc(1.3rem * 1.3 * 3);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            overflow: hidden;
         }
 
-        /* 正解のボタン＆テキストエリア全体 */
         .quiz-answer-row {
-            font-size: 2.2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #ffeb3b; 
-            border-top: 2px dashed #444;
-            padding-top: 10px;
+            border-top: 1px dashed #444;
+            padding-top: 8px;
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
-        /* 「正解のボタン」という黄色いラベル */
         .ans-label {
             background: #ffeb3b;
             color: #222;
-            padding: 4px 14px;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            margin-right: 14px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
             font-weight: bold;
         }
 
-        /* 横並びベースの設定（ハテナ虫と料理） */
+        /* カウンター配置エリア（画面幅に応じて自動改行） */
         .grid-container {
             display: flex;
-            gap: 24px;
+            gap: 12px;
             justify-content: center;
-            width: 820px;
-            box-sizing: border-box;
+            width: 100%;
+            max-width: 820px;
+            flex-wrap: wrap;
         }
 
-        /* カード全体の幅 */
+        /* カードデザイン（スマホでは100%幅〜半々で可変） */
         .card {
             background: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 18px;
             text-align: center;
-            width: 398px; 
-            box-sizing: border-box;
+            flex: 1 1 300px;
+            max-width: 400px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        /* 画像サイズ270px */
         .click-image {
-            width: 270px;
-            height: 270px;
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            aspect-ratio: 1 / 1;
             object-fit: cover; 
             border-radius: 12px;
-            -webkit-user-drag: none;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             background-color: #ffffff;
             display: inline-block;
-            cursor: default; /* クリック無効のためカーソルを通常に */
         }
 
-        /* カウント表示 */
         .count-display {
-            font-size: 3.5rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: #333;
             line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        /* スマホ用の「＋」「ー」操作ボタン */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .count-btn {
+            font-size: 1.5rem;
+            font-weight: bold;
+            width: 50%;
+            padding: 10px 0;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .btn-plus { background-color: #34c759; }
+        .btn-plus:active { background-color: #28a745; }
+        .btn-minus { background-color: #ff3b30; }
+        .btn-minus:active { background-color: #dc3545; }
+
+        /* PC等で画面が大きい場合のフォントサイズ調整 */
+        @media (min-width: 600px) {
+            .quiz-question { font-size: 1.8rem; min-height: calc(1.8rem * 1.3 * 3); }
+            .quiz-answer-row { font-size: 1.8rem; }
+            .ans-label { font-size: 1rem; }
         }
     </style>
 </head>
 <body>
 
     <div class="top-menu">
-        <button id="appResetBtn" class="menu-btn reset-button">画像をリセット</button>
-        <button id="appKillBtn" class="menu-btn kill-button">アプリを強制終了する</button>
+        <button id="appResetBtn" class="menu-btn reset-button">カウントをリセット</button>
     </div>
 
     <div class="quiz-navi-box" id="quizNavi">
@@ -180,18 +192,26 @@
     <div class="grid-container">
 
         <div class="card" data-max="64">
-            <img src="C:\Users\origa\Desktop\my-counter-app\quizmo.png" alt="ハテナ虫" class="click-image">
+            <img src="quizmo.png" alt="ハテナ虫" class="click-image">
             <div class="count-display">0 / 64</div>
+            <div class="btn-group">
+                <button class="count-btn btn-minus">ー</button>
+                <button class="count-btn btn-plus">＋</button>
+            </div>
         </div>
 
         <div class="card" data-max="50">
-            <img src="C:\Users\origa\Desktop\my-counter-app\cook.png" alt="料理" class="click-image">
+            <img src="cook.png" alt="料理" class="click-image">
             <div class="count-display">0 / 50</div>
+            <div class="btn-group">
+                <button class="count-btn btn-minus">ー</button>
+                <button class="count-btn btn-plus">＋</button>
+            </div>
         </div>
 
     </div>
 
-    <script>
+      <script>
         const quizList = [
             { q: "クリオの妹の名前は何？", a: "下 (3) ：クリコ" },
             { q: "最初に手に入れたハンマーで壊すことのできるブロックの色は？", a: "中 (2) ：黄色" },
@@ -282,6 +302,10 @@
 
         cards.forEach((card, index) => {
             const display = card.querySelector('.count-display');
+            const btnPlus = card.querySelector('.btn-plus');
+            const btnMinus = card.querySelector('.btn-minus');
+            const img = card.querySelector('.click-image');
+            
             const maxCount = parseInt(card.getAttribute('data-max')) || 100;
             let count = 0;
 
@@ -290,11 +314,19 @@
                 if (index === 0) updateQuizNavigation(count);
             };
 
-            itemStates.push({
-                plus: () => { if (count < maxCount) { count++; updateDisplay(); } },
-                minus: () => { if (count > 0) { count--; updateDisplay(); } },
-                reset: () => { count = 0; updateDisplay(); }
-            });
+            const plus = () => { if (count < maxCount) { count++; updateDisplay(); } };
+            const minus = () => { if (count > 0) { count--; updateDisplay(); } };
+            const reset = () => { count = 0; updateDisplay(); };
+
+            itemStates.push({ plus, minus, reset });
+
+            // ボタンでの操作
+            btnPlus.addEventListener('click', plus);
+            btnMinus.addEventListener('click', minus);
+            
+            // 画像タップでも加算可能（押し間違い防止用に画像タップ操作も有効化）
+            img.addEventListener('click', plus);
+
             updateDisplay();
         });
 
@@ -304,37 +336,6 @@
                 itemStates.forEach(state => state.reset());
             }
         });
-
-        // --- NW.js 専用処理 ---
-        if (typeof nw !== 'undefined') {
-            const nwWin = nw.Window.get();
-            
-            // 💥 3行化に合わせてウィンドウの縦幅を 780 から 820 へ拡張
-            nwWin.resizeTo(860, 820);
-            nwWin.setMinimumSize(860, 820);
-            nwWin.setMaximumSize(860, 820);
-
-            // ホットキー設定
-            const keys = ['1', '2'];
-            keys.forEach((keyName, idx) => {
-                const shortcutPlus = new nw.Shortcut({ key: keyName });
-                shortcutPlus.on('active', () => { itemStates[idx].plus(); });
-                nw.App.registerGlobalHotKey(shortcutPlus);
-
-                const shortcutMinus = new nw.Shortcut({ key: `Ctrl+${keyName}` });
-                shortcutMinus.on('active', () => { itemStates[idx].minus(); });
-                nw.App.registerGlobalHotKey(shortcutMinus);
-            });
-
-            document.getElementById('appKillBtn').addEventListener('click', () => {
-                if (typeof process !== 'undefined' && process.exit) { process.exit(0); }
-            });
-
-            nwWin.on('close', () => {
-                if (typeof process !== 'undefined' && process.exit) { process.exit(0); }
-            });
-        }
     </script>
-
 </body>
 </html>
